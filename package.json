@@ -1,0 +1,27 @@
+{
+  "name": "bros",
+  "version": "1.0.0",
+  "description": "**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "deploy": "forge create --rpc-url localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/BananaCat.sol:BananaCat",
+    "deploytesttoken":"forge create --rpc-url localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/TestToken.sol:TestToken",
+    "checktokenbalance": "cast call 0xFf658343244c0475b9305859F1b7CDAB9784762f 'balanceOf(address)'",
+    "transferToken": "cast send 0xFf658343244c0475b9305859F1b7CDAB9784762f 'transfer(address,uint256)(bool)'",
+    "transferFrom": "cast send 0xFf658343244c0475b9305859F1b7CDAB9784762f 'transferFrom(address,address,uint256)(bool)'",
+    "sendEth":"cast send 0xFf658343244c0475b9305859F1b7CDAB9784762f --value 1ether --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    "checkEthBalance": "cast balance",
+    "happyhappy":"cast send 0xFf658343244c0475b9305859F1b7CDAB9784762f 'happyhappy()' --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    "testSwapUniTokens":"cast send 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D 'SwapExactETHForTokens(uint,address[],address,uint)' 33450855684709790641 ['0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6','0x9B2660A7BEcd0Bf3d90401D1C214d2CD36317da5'] 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 1708358452",
+    "checktestusdc": "cast call 0x9B2660A7BEcd0Bf3d90401D1C214d2CD36317da5 'balanceOf(address)' 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+
+  //UniswapV2 Router: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
+}
