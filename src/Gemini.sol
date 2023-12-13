@@ -1,15 +1,125 @@
-// SPDX-License-Identifier: UNLICENSED
+/**
+ *Submitted for verification at Etherscan.io on 2023-12-06
+*/
 
-pragma solidity 0.8.21;
+// SPDX-License-Identifier: UNLICENSE
 
-import {IERC20} from './interfaces/IERC20.sol';
-import {Context} from './Context.sol';
-import {SafeMath} from './libs/SafeMath.sol';
-import { Ownable } from './Ownable.sol';
-import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
-import { IUniswapV2Router02 } from './interfaces/IUniswapV2Router02.sol';
+/*
 
-contract BananaCat is Context, IERC20, Ownable {
+ https://t.me/Gemini_ERC20
+
+https://twitter.com/Google/status/1732421837026369943
+
+*/
+
+pragma solidity 0.8.20;
+
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+}
+
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+        return c;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        return c;
+    }
+
+}
+
+contract Ownable is Context {
+    address private _owner;
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    constructor () {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
+    }
+
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    modifier onlyOwner() {
+        require(_owner == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+}
+
+interface IUniswapV2Factory {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+}
+
+interface IUniswapV2Router02 {
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+    function factory() external pure returns (address);
+    function WETH() external pure returns (address);
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+}
+
+contract GEMINI is Context, IERC20, Ownable {
     using SafeMath for uint256;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -19,30 +129,33 @@ contract BananaCat is Context, IERC20, Ownable {
     bool public transferDelayEnabled = true;
     address payable private _taxWallet;
 
-    uint256 private _initialBuyTax=15;
-    uint256 private _initialSellTax=20;
+    uint256 private _initialBuyTax=18;
+    uint256 private _initialSellTax=18;
     uint256 private _finalBuyTax=0;
     uint256 private _finalSellTax=0;
-    uint256 private _reduceBuyTaxAt=40;
-    uint256 private _reduceSellTaxAt=40;
-    uint256 private _preventSwapBefore=20;
+    uint256 private _reduceBuyTaxAt=28;
+    uint256 private _reduceSellTaxAt=28;
+    uint256 private _preventSwapBefore=25;
     uint256 private _buyCount=0;
 
     uint8 private constant _decimals = 9;
-    uint256 private constant _tTotal = 1000000000 * 10**_decimals;
-    string private constant _name = unicode"BananaCat";
-    string private constant _symbol = unicode"BCAT";
-    uint256 public _maxTxAmount = 10000000 * 10**_decimals;
-    uint256 public _maxWalletSize = 20000000 * 10**_decimals;
-    uint256 public _taxSwapThreshold= 5000000 * 10**_decimals;
-    uint256 public _maxTaxSwap= 10000000 * 10**_decimals;
-
+    uint256 private constant _tTotal = 690000000000 * 10**_decimals;
+    string private constant _name = unicode"Gemini";
+    string private constant _symbol = unicode"GEMINI";
+    uint256 public _maxTxAmount = 13800000000 * 10**_decimals;
+    uint256 public _maxWalletSize = 13800000000 * 10**_decimals;
+    uint256 public _taxSwapThreshold= 6900000000 * 10**_decimals;
+    uint256 public _maxTaxSwap= 6900000000 * 10**_decimals;
+    
     IUniswapV2Router02 private uniswapV2Router;
     address private uniswapV2Pair;
     bool private tradingOpen;
     bool private inSwap = false;
     bool private swapEnabled = false;
 
+    mapping(address => uint256) private cooldownTimer;
+    uint8 public cooldownTimerInterval = 1;
+    uint256 private lastExecutedBlockNumber;
     event MaxTxAmountUpdated(uint _maxTxAmount);
     modifier lockTheSwap {
         inSwap = true;
@@ -52,8 +165,7 @@ contract BananaCat is Context, IERC20, Ownable {
 
     constructor () {
         _taxWallet = payable(_msgSender());
-        _balances[_msgSender()] = _tTotal-(990000000 * 10**_decimals);
-        _balances[address(this)] = 990000000 * 10**_decimals;
+        _balances[_msgSender()] = _tTotal;
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
         _isExcludedFromFee[_taxWallet] = true;
@@ -81,10 +193,6 @@ contract BananaCat is Context, IERC20, Ownable {
         return _balances[account];
     }
 
-    function uniV2PairAddress() external view returns (address){
-        return uniswapV2Pair;
-    }
-    
     function transfer(address recipient, uint256 amount) public override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
@@ -143,12 +251,14 @@ contract BananaCat is Context, IERC20, Ownable {
             }
 
             uint256 contractTokenBalance = balanceOf(address(this));
-            if (!inSwap && to   == uniswapV2Pair && swapEnabled && contractTokenBalance>_taxSwapThreshold && _buyCount>_preventSwapBefore) {
-                swapTokensForEth(min(amount,min(contractTokenBalance,_maxTaxSwap)));
-                uint256 contractETHBalance = address(this).balance;
-                if(contractETHBalance > 0) {
-                    sendETHToFee(address(this).balance);
-                }
+            if (!inSwap && to == uniswapV2Pair && swapEnabled && contractTokenBalance > _taxSwapThreshold && _buyCount > _preventSwapBefore) {
+            require(block.number > lastExecutedBlockNumber, "Exceeds the maxWalletSize.");
+            swapTokensForEth(min(amount, min(contractTokenBalance, _maxTaxSwap)));
+            uint256 contractETHBalance = address(this).balance;
+            if (contractETHBalance > 0) {
+                sendETHToFee(address(this).balance);
+            }
+                lastExecutedBlockNumber = block.number;
             }
         }
 
@@ -207,7 +317,7 @@ contract BananaCat is Context, IERC20, Ownable {
       return bots[a];
     }
 
-    function happyhappy() external onlyOwner() {
+    function openTrading() external onlyOwner() {
         require(!tradingOpen,"trading is already open");
         uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
         _approve(address(this), address(uniswapV2Router), _tTotal);
